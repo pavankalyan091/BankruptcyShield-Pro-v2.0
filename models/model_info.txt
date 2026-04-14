@@ -1,0 +1,5 @@
+Best Model: Random Forest
+Accuracy: 96.41%
+F1 Score: 44.94%
+Optimal Threshold: 0.7000000000000001
+Scaler: QuantileTransformer

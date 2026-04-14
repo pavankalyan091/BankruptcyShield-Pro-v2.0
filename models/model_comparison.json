@@ -1,0 +1,16 @@
+{
+    "winner": "Random Forest",
+    "optimal_threshold": 0.7000000000000001,
+    "logistic_regression": {
+        "accuracy": 92.45,
+        "precision": 26.77,
+        "recall": 77.27,
+        "f1": 39.77
+    },
+    "random_forest": {
+        "accuracy": 96.41,
+        "precision": 44.44,
+        "recall": 45.45,
+        "f1": 44.94
+    }
+}

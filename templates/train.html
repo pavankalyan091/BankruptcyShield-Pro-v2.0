@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Train Model – Bankruptcy Shield</title>
+<style>
+:root{--primary:#4361ee;--dark:#1a1a2e;--bg:#f4f7fe;--text:#64748b;--success:#10b981;--danger:#ef4444;--warn:#f59e0b}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',sans-serif}
+body{background:var(--bg);color:#1e293b}
+nav{background:#fff;padding:1rem 5%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05);position:sticky;top:0;z-index:999}
+.logo{font-size:1.4rem;font-weight:800;text-decoration:none;color:var(--dark)}.logo span{color:var(--primary)}
+.nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+.nav-links a{text-decoration:none;color:var(--text);font-weight:500}.nav-links a:hover{color:var(--primary)}
+.btn-logout{color:#ef4444!important;border:1px solid #ef4444;padding:6px 14px;border-radius:8px}
+.container{max-width:860px;margin:36px auto;padding:0 20px}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:6px}
+.subtitle{color:var(--text);margin-bottom:28px}
+.card{background:#fff;border-radius:16px;padding:28px 32px;box-shadow:0 4px 20px rgba(0,0,0,.06);margin-bottom:22px}
+.card-title{font-size:1.1rem;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;color:var(--dark)}
+.badge{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:50%;background:var(--primary);color:#fff;font-size:.85rem;font-weight:700;flex-shrink:0}
+.badge.done{background:var(--success)}.badge.actv{background:var(--warn)}
+.upload-zone{border:2.5px dashed #c7d2fe;border-radius:12px;padding:32px;text-align:center;cursor:pointer;transition:.2s;background:#f8faff}
+.upload-zone:hover,.upload-zone.drag{border-color:var(--primary);background:#eef2ff}
+.upload-zone .icon{font-size:2.4rem;margin-bottom:8px}
+.upload-zone p{color:var(--text);font-size:.9rem;margin-top:4px}
+.btn{display:inline-flex;align-items:center;gap:6px;background:var(--primary);color:#fff;border:none;padding:12px 24px;border-radius:10px;font-weight:700;cursor:pointer;font-size:.95rem;transition:.2s;text-decoration:none}
+.btn:hover{background:#3a0ca3}.btn:disabled{background:#a5b4fc;cursor:not-allowed}
+.btn-success{background:var(--success)}.btn-success:hover{background:#059669}
+.btn-sec{background:#6b7280}.btn-sec:hover{background:#4b5563}
+.btn-sm{padding:8px 16px;font-size:.85rem}
+.btn-full{width:100%;justify-content:center;margin-top:14px}
+.ds-bar{display:flex;align-items:center;gap:14px;background:#eef2ff;border:1px solid #c7d2fe;border-radius:10px;padding:14px 18px;margin-bottom:20px}
+.ds-icon{font-size:1.6rem}.ds-name{font-weight:700;font-size:.95rem;color:var(--dark)}.ds-meta{font-size:.82rem;color:var(--text);margin-top:2px}
+.ds-badge{background:#10b981;color:#fff;font-size:.75rem;font-weight:700;padding:4px 10px;border-radius:20px}
+.stat-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap}
+.chip{background:#f8fafc;border:1px solid #e2e8f0;border-radius:8px;padding:7px 12px;font-size:.83rem;color:var(--text)}
+.chip strong{color:var(--dark)}
+.mode-tabs{display:flex;border:1px solid #e2e8f0;border-radius:8px;overflow:hidden;margin-bottom:14px}
+.mtab{flex:1;padding:10px;text-align:center;cursor:pointer;font-size:.85rem;font-weight:600;background:#f8fafc;color:var(--text);transition:.15s;border:none}
+.mtab.active{background:var(--primary);color:#fff}
+.mapper-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.mrow{display:flex;align-items:center;gap:8px;padding:9px 10px;background:#f8fafc;border-radius:8px;border:1px solid #e2e8f0}
+.mlabel{font-size:.8rem;font-weight:600;color:var(--dark);min-width:140px}.msub{font-size:.71rem;color:var(--text)}
+.msel{flex:1;padding:6px 8px;border:1px solid #d1d5db;border-radius:7px;font-size:.83rem;background:#fff}
+.msel.ok{border-color:var(--success);background:#f0fdf4}.msel.no{border-color:#f59e0b;background:#fffbeb}
+.hint{background:#f8fafc;border-radius:8px;padding:13px 15px;font-size:.82rem;color:var(--text);margin-top:12px;border:1px solid #e2e8f0}
+.hint code{background:#e2e8f0;padding:2px 5px;border-radius:4px;font-size:.77rem}
+.pstep{display:flex;align-items:flex-start;gap:14px;padding:14px 0;border-bottom:1px solid #f1f5f9;opacity:.4;transition:.3s}
+.pstep:last-child{border:none}.pstep.on{opacity:1}.pstep.dn{opacity:1}
+.picon{font-size:1.1rem;width:34px;height:34px;background:#f1f5f9;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.pstep.on .picon{background:#eef2ff}.pstep.dn .picon{background:#f0fdf4}
+.pinfo h4{font-size:.88rem;font-weight:700;margin-bottom:2px}
+.pinfo p{color:var(--text);font-size:.8rem}
+.pstep.on .pinfo h4{color:var(--primary)}.pstep.dn .pinfo h4{color:var(--success)}
+.pbar-wrap{background:#f1f5f9;border-radius:20px;height:8px;margin:5px 0 3px;overflow:hidden}
+.pbar{height:8px;background:linear-gradient(90deg,var(--primary),#7c3aed);border-radius:20px;transition:width .4s;width:0%}
+.plbl{display:flex;justify-content:space-between;font-size:.75rem;color:var(--text);margin-bottom:2px}
+.log{background:#0f172a;border-radius:10px;padding:12px 14px;font-family:'Courier New',monospace;font-size:.78rem;color:#94a3b8;min-height:56px;max-height:110px;overflow-y:auto;margin-top:12px}
+.lg{margin:2px 0}.good{color:#6ee7b7}
+.res-card{background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border:1px solid #a7f3d0;border-radius:14px;padding:22px;display:none}
+.res-card.err{background:linear-gradient(135deg,#fef2f2,#fee2e2);border-color:#fca5a5}
+.mets{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:14px}
+.met{background:#fff;border-radius:10px;padding:12px;text-align:center;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.met .v{font-size:1.5rem;font-weight:800;color:var(--primary)}.met .l{color:var(--text);font-size:.76rem;margin-top:2px}
+.ar{display:flex;gap:10px;margin-top:16px}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">Bankruptcy<span>Shield</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li><li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/train">Train</a></li><li><a href="/predict">Predict</a></li>
+    <li><a href="/compare">Compare</a></li>
+    <li><a class="btn-logout" href="/logout">Logout</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  <h1>🧠 Model Training</h1>
+  <p class="subtitle">Upload any financial CSV → Map columns → GA + PSO Training → Predict</p>
+
+  {% if dataset_info %}
+  <div class="ds-bar" id="ds-bar">
+    <span class="ds-icon">📊</span>
+    <div style="flex:1">
+      <div class="ds-name" id="ds-name">📁 {{ dataset_info.filename }}</div>
+      <div class="ds-meta" id="ds-meta">{{ dataset_info.rows }} rows · {{ dataset_info.columns }} features</div>
+    </div>
+    <span class="ds-badge">✅ Dataset Ready</span>
+  </div>
+  {% else %}
+  <div class="ds-bar" id="ds-bar" style="display:none">
+    <span class="ds-icon">📊</span>
+    <div style="flex:1">
+      <div class="ds-name" id="ds-name"></div>
+      <div class="ds-meta" id="ds-meta"></div>
+    </div>
+    <span class="ds-badge">✅ Dataset Ready</span>
+  </div>
+  {% endif %}
+
+  <!-- STEP 1 -->
+  <div class="card">
+    <div class="card-title"><span class="badge" id="b1">1</span> Upload Your Dataset</div>
+    <div class="upload-zone" id="uz"
+         ondragover="event.preventDefault();this.classList.add('drag')"
+         ondragleave="this.classList.remove('drag')"
+         ondrop="onDrop(event)"
+         onclick="document.getElementById('fi').click()">
+      <div class="icon">📂</div>
+      <p><strong>Click to upload</strong> or drag &amp; drop your CSV</p>
+      <p>Any financial dataset with a binary 0/1 target column</p>
+    </div>
+    <input type="file" id="fi" accept=".csv" style="display:none" onchange="onFile(this)">
+    <div id="fc" style="display:none;color:var(--primary);font-weight:600;margin-top:10px;font-size:.9rem">📄 <span id="fn"></span></div>
+    <div class="hint">
+      <strong>Supported:</strong>
+      ✅ 8-column basic (revenue, assets, liabilities…) — we compute 95 ratios &nbsp;|&nbsp;
+      ✅ 95-column full Taiwan format — used directly &nbsp;|&nbsp;
+      ✅ Any custom format — you map columns<br>
+      Target column auto-detected: <code>Bankrupt?</code> <code>bankrupt</code> <code>target</code> <code>label</code> <code>default</code> or any 0/1 column
+    </div>
+  </div>
+
+  <!-- STEP 2 — MAPPER -->
+  <div class="card" id="s2" style="display:none">
+    <div class="card-title"><span class="badge actv" id="b2">2</span> Map Your Columns</div>
+    <div id="al" style="text-align:center;padding:20px;color:var(--text)">⏳ Analyzing CSV...</div>
+    <div id="ar2" style="display:none">
+      <div class="stat-row" id="sr"></div>
+      <div id="modesec">
+        <div style="font-weight:600;font-size:.88rem;margin-bottom:8px">How should we use your data?</div>
+        <div class="mode-tabs">
+          <button class="mtab active" onclick="setMode('full')" id="tf">📊 Full Dataset (95+ columns)</button>
+          <button class="mtab" onclick="setMode('basic')" id="tb">🔢 Basic 8-Column Mode</button>
+        </div>
+      </div>
+      <div id="fi2">
+        <div class="hint">✅ Your dataset has many feature columns — used directly.<br>
+        Target column: <strong id="tcd">—</strong> &nbsp; Just click "Apply &amp; Proceed" below.</div>
+      </div>
+      <div id="bi" style="display:none">
+        <p style="font-size:.84rem;color:var(--text);margin-bottom:10px">Map your CSV columns to our 8 required fields. Green = auto-detected.</p>
+        <div class="mapper-grid" id="mg"></div>
+        <div class="hint" style="margin-top:10px">
+          <strong>Target Column (Bankrupt=1):</strong>
+          <select id="tcs" style="margin-left:8px;padding:5px 8px;border:1px solid #d1d5db;border-radius:6px;font-size:.83rem"></select>
+        </div>
+      </div>
+      <div style="display:flex;gap:10px;margin-top:16px">
+        <button class="btn btn-success" onclick="applyMap()">✅ Apply &amp; Proceed to Training</button>
+        <button class="btn btn-sec btn-sm" onclick="resetS1()">← Change File</button>
+      </div>
+      <div id="merr" style="color:var(--danger);font-size:.83rem;margin-top:8px;display:none"></div>
+    </div>
+  </div>
+
+  <!-- STEP 3 — TRAIN -->
+  <div class="card" id="s3">
+    <div class="card-title"><span class="badge" id="b3">3</span> Train — GA + PSO Pipeline</div>
+
+    <div id="sp">
+      <div style="display:flex;flex-direction:column;gap:0">
+        <div class="pstep" style="opacity:1"><div class="picon">🧬</div><div class="pinfo"><h4>Genetic Algorithm — Feature Selection</h4><p>30 chromosomes × 15 generations on balanced data → 20 best features by F1 score</p></div></div>
+        <div class="pstep" style="opacity:1"><div class="picon">🐝</div><div class="pinfo"><h4>PSO — Hyperparameter Optimization</h4><p>10 particles × 8 iterations → optimal LR C value + QuantileTransformer + synthetic samples</p></div></div>
+        <div class="pstep" style="opacity:1"><div class="picon">🤖</div><div class="pinfo"><h4>Train RF + LR → Select Winner by F1</h4><p>Both models trained → optimal threshold found → bundle saved</p></div></div>
+      </div>
+      <button class="btn btn-full" id="sb" onclick="startTrain()">🚀 Start Training Pipeline</button>
+    </div>
+
+    <div id="pp" style="display:none">
+      <div>
+        <div class="pstep" id="pga"><div class="picon">🧬</div><div class="pinfo"><h4>Genetic Algorithm</h4><p id="pgt">Waiting...</p><div id="gaw" style="display:none"><div class="plbl"><span id="ggl">Gen 0/15</span><span id="gfl">F1: —</span></div><div class="pbar-wrap"><div class="pbar" id="gb"></div></div></div></div></div>
+        <div class="pstep" id="ppso"><div class="picon">🐝</div><div class="pinfo"><h4>PSO Optimization</h4><p id="ppt">Waiting...</p><div id="pw" style="display:none"><div class="plbl"><span id="pil">Iter 0/8</span><span id="pfl">F1: —</span></div><div class="pbar-wrap"><div class="pbar" id="pb"></div></div></div></div></div>
+        <div class="pstep" id="pmod"><div class="picon">🤖</div><div class="pinfo"><h4>Model Training</h4><p id="pmt">Waiting...</p></div></div>
+      </div>
+      <div class="log" id="lg"><div class="lg">⏳ Initializing...</div></div>
+    </div>
+
+    <div class="res-card" id="rc">
+      <div style="font-size:1.4rem;margin-bottom:4px">🎉 Training Complete!</div>
+      <div style="color:var(--text);font-size:.88rem">Best Model: <strong id="ra">—</strong></div>
+      <div class="mets">
+        <div class="met"><div class="v" id="racc">—</div><div class="l">Accuracy</div></div>
+        <div class="met"><div class="v" id="rp">—</div><div class="l">Precision</div></div>
+        <div class="met"><div class="v" id="rr">—</div><div class="l">Recall</div></div>
+        <div class="met"><div class="v" id="rf">—</div><div class="l">F1 Score</div></div>
+      </div>
+      <div class="ar">
+        <a href="/predict" class="btn btn-success">→ Predict Now</a>
+        <a href="/compare" class="btn">📊 Compare</a>
+        <button class="btn btn-sec" onclick="retrain()">🔄 Retrain</button>
+      </div>
+    </div>
+    <div class="res-card err" id="ec">
+      <div style="font-size:1.2rem;color:var(--danger);margin-bottom:8px">❌ Training Failed</div>
+      <div id="em" style="font-size:.88rem;color:#7f1d1d"></div>
+      <button class="btn btn-sec" style="margin-top:12px" onclick="retrain()">🔄 Try Again</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let csvFile=null,csvInfo=null,curMode='full',ptimer=null,logs=[];
+const FIELDS={
+  revenue:{l:'Revenue / Net Sales',s:'Total annual revenue'},
+  total_assets:{l:'Total Assets',s:'All company assets'},
+  total_liabilities:{l:'Total Liabilities',s:'All debts & obligations'},
+  operating_income:{l:'Operating Income (EBIT)',s:'Revenue minus operating costs'},
+  net_income:{l:'Net Income / Net Profit',s:'Final profit after all taxes'},
+  op_cash_flow:{l:'Operating Cash Flow',s:'Cash generated from operations'},
+  current_assets:{l:'Current Assets',s:'Assets liquidable within 1 year'},
+  current_liabilities:{l:'Current Liabilities',s:'Obligations due within 1 year'}
+};
+
+function onDrop(e){e.preventDefault();document.getElementById('uz').classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.name.endsWith('.csv'))go(f);else alert('CSV file needed.');}
+function onFile(i){if(i.files[0])go(i.files[0]);}
+function go(f){csvFile=f;document.getElementById('fn').textContent=f.name;document.getElementById('fc').style.display='block';analyze(f);}
+
+async function analyze(f){
+  document.getElementById('s2').style.display='block';
+  document.getElementById('al').style.display='block';
+  document.getElementById('ar2').style.display='none';
+  const fd=new FormData();fd.append('file',f);
+  try{
+    const r=await fetch('/api/analyze_csv',{method:'POST',body:fd});
+    const d=await r.json();
+    if(d.error){merr(d.error);return;}
+    csvInfo=d.info;render(d.info);
+  }catch(e){merr('Analyze failed: '+e.message);}
+}
+
+function render(info){
+  document.getElementById('al').style.display='none';
+  document.getElementById('ar2').style.display='block';
+  document.getElementById('sr').innerHTML=
+    `<div class="chip">📊 <strong>${info.total_rows}</strong> rows</div>
+     <div class="chip">📋 <strong>${info.total_cols}</strong> cols</div>
+     <div class="chip">🔴 <strong>${info.bankrupt_count}</strong> bankrupt</div>
+     <div class="chip">🟢 <strong>${info.healthy_count}</strong> healthy</div>
+     <div class="chip">🎯 Target: <strong>${info.target_col||'Not found'}</strong></div>`;
+  document.getElementById('tcd').textContent=info.target_col||'Not found';
+  if(info.mode==='full'){setMode('full');document.getElementById('tb').style.opacity='.5';}
+  else{setMode('basic');document.getElementById('tf').style.opacity='.5';}
+  buildMapper(info);
+}
+
+function setMode(m){
+  curMode=m;
+  document.getElementById('tf').classList.toggle('active',m==='full');
+  document.getElementById('tb').classList.toggle('active',m==='basic');
+  document.getElementById('fi2').style.display=m==='full'?'block':'none';
+  document.getElementById('bi').style.display=m==='basic'?'block':'none';
+}
+
+function buildMapper(info){
+  const g=document.getElementById('mg'),au=info.auto_mapping||{},cols=info.all_cols||[];
+  g.innerHTML='';
+  for(const[f,m]of Object.entries(FIELDS)){
+    const matched=au[f];
+    const d=document.createElement('div');d.className='mrow';
+    d.innerHTML=`<div><div class="mlabel">${m.l}</div><div class="msub">${m.s}</div></div>
+      <select class="msel ${matched?'ok':'no'}" id="mp-${f}">
+        <option value="">— Skip —</option>
+        ${cols.map(c=>`<option value="${c}" ${c===matched?'selected':''}>${c}</option>`).join('')}
+      </select>`;
+    g.appendChild(d);
+    d.querySelector('select').addEventListener('change',function(){this.className='msel '+(this.value?'ok':'no');});
+  }
+  const ts=document.getElementById('tcs');
+  ts.innerHTML=cols.map(c=>`<option value="${c}" ${c===info.target_col?'selected':''}>${c}</option>`).join('');
+}
+
+async function applyMap(){
+  if(!csvFile||!csvInfo){merr('Upload a file first.');return;}
+  const btn=document.querySelector('[onclick="applyMap()"]');
+  btn.disabled=true;btn.textContent='⏳ Processing...';
+  document.getElementById('merr').style.display='none';
+  let mapping={};
+  if(curMode==='basic'){for(const f of Object.keys(FIELDS)){const s=document.getElementById('mp-'+f);if(s&&s.value)mapping[f]=s.value;}}
+  const tc=curMode==='basic'?document.getElementById('tcs').value:(csvInfo.target_col||'');
+  try{
+    const r=await fetch('/api/apply_mapping',{method:'POST',headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({mode:curMode,mapping,target_col:tc})});
+    const d=await r.json();
+    if(d.error){merr(d.error);btn.disabled=false;btn.textContent='✅ Apply & Proceed to Training';return;}
+    document.getElementById('s2').style.display='none';
+    document.getElementById('b1').textContent='✓';document.getElementById('b1').className='badge done';
+    document.getElementById('b3').className='badge actv';
+    const db=document.getElementById('ds-bar');
+    db.querySelector('#ds-name').textContent='📁 '+csvFile.name;
+    db.querySelector('#ds-meta').textContent=d.rows+' rows · '+d.cols+' features';
+    db.style.display='flex';
+    addLog('✅ Dataset ready: '+d.rows+' rows × '+d.cols+' features ('+d.mode+' mode)','good');
+    document.getElementById('s3').scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(e){merr('Error: '+e.message);btn.disabled=false;btn.textContent='✅ Apply & Proceed to Training';}
+}
+
+function merr(msg){
+  const e=document.getElementById('merr');
+  e.textContent='❌ '+msg;e.style.display='block';
+  document.getElementById('al').style.display='none';
+  document.getElementById('ar2').style.display='block';
+}
+function resetS1(){csvFile=null;csvInfo=null;document.getElementById('s2').style.display='none';document.getElementById('fi').value='';document.getElementById('fc').style.display='none';}
+
+async function startTrain(){
+  document.getElementById('sb').disabled=true;
+  document.getElementById('sp').style.display='none';
+  document.getElementById('pp').style.display='block';
+  document.getElementById('rc').style.display='none';
+  document.getElementById('ec').style.display='none';
+  logs=[];addLog('🚀 Starting GA + PSO training pipeline...');
+  try{
+    const r=await fetch('/api/start_training',{method:'POST'});
+    const d=await r.json();
+    if(d.error){showErr(d.error);return;}
+    ptimer=setInterval(poll,1500);
+  }catch(e){showErr('Failed to start: '+e.message);}
+}
+
+async function poll(){
+  try{const r=await fetch('/api/training_status');const s=await r.json();upd(s);if(s.done){clearInterval(ptimer);fin(s);}}catch(e){}
+}
+
+function upd(s){
+  const gaA=s.stage==='GA',psoA=s.stage==='PSO',modA=s.stage==='MODELS',dn=['PSO','MODELS','DONE'].includes(s.stage);
+  const gaEl=document.getElementById('pga');
+  if(gaA)gaEl.className='pstep on';else if(dn)gaEl.className='pstep dn';else if(s.stage!=='IDLE')gaEl.className='pstep on';
+  if(s.stage!=='IDLE'&&s.stage!=='START'){
+    document.getElementById('pgt').textContent=gaA?s.step:('Done — '+s.features+' features selected');
+    document.getElementById('gaw').style.display='block';
+    document.getElementById('gb').style.width=((s.gen/Math.max(s.total_gens,1))*100)+'%';
+    document.getElementById('ggl').textContent='Gen '+s.gen+'/'+s.total_gens;
+    document.getElementById('gfl').textContent='F1: '+(s.best_f1*100).toFixed(1)+'%';
+  }
+  const psoEl=document.getElementById('ppso'),mDn=['MODELS','DONE'].includes(s.stage);
+  if(psoA)psoEl.className='pstep on';else if(mDn)psoEl.className='pstep dn';
+  if(psoA||mDn){
+    document.getElementById('ppt').textContent=psoA?s.step:('Done — C tuned, '+s.features+' features');
+    document.getElementById('pw').style.display='block';
+    document.getElementById('pb').style.width=((s.pso_iter/Math.max(s.total_pso,1))*100)+'%';
+    document.getElementById('pil').textContent='Iter '+s.pso_iter+'/'+s.total_pso;
+    document.getElementById('pfl').textContent='F1: '+(s.best_f1*100).toFixed(1)+'%';
+  }
+  const mEl=document.getElementById('pmod');
+  if(modA){mEl.className='pstep on';document.getElementById('pmt').textContent=s.step;}
+  else if(s.stage==='DONE'){mEl.className='pstep dn';document.getElementById('pmt').textContent='Done!';}
+  if(s.step&&(logs.length===0||logs[logs.length-1]!==s.step))addLog(s.step,mDn?'good':'');
+}
+
+function fin(s){
+  if(s.error){showErr(s.error);return;}
+  document.getElementById('pp').style.display='none';
+  const m=s.metrics||{};
+  document.getElementById('rc').style.display='block';
+  document.getElementById('ra').textContent=s.algo||'Random Forest';
+  document.getElementById('racc').textContent=(m.accuracy||0)+'%';
+  document.getElementById('rp').textContent=(m.precision||0)+'%';
+  document.getElementById('rr').textContent=(m.recall||0)+'%';
+  document.getElementById('rf').textContent=(m.f1||0)+'%';
+  document.getElementById('b3').textContent='✓';document.getElementById('b3').className='badge done';
+}
+
+function showErr(msg){
+  document.getElementById('pp').style.display='none';
+  document.getElementById('ec').style.display='block';
+  document.getElementById('em').textContent=msg;
+}
+
+function retrain(){
+  document.getElementById('rc').style.display='none';document.getElementById('ec').style.display='none';
+  document.getElementById('sp').style.display='block';document.getElementById('sb').disabled=false;
+  document.getElementById('b3').textContent='3';document.getElementById('b3').className='badge';
+  ['pga','ppso','pmod'].forEach(id=>{document.getElementById(id).className='pstep';});
+  document.getElementById('gaw').style.display='none';document.getElementById('pw').style.display='none';
+  logs=[];
+}
+
+function addLog(m,cls=''){
+  logs.push({m,cls});if(logs.length>8)logs.shift();
+  document.getElementById('lg').innerHTML=logs.map(l=>`<div class="lg ${l.cls}">${l.m}</div>`).join('');
+  const el=document.getElementById('lg');el.scrollTop=el.scrollHeight;
+}
+
+window.addEventListener('DOMContentLoaded',async()=>{
+  try{
+    const r=await fetch('/api/training_status');const s=await r.json();
+    if(s.stage&&!['IDLE','DONE','ERROR'].includes(s.stage)&&!s.done){
+      document.getElementById('sp').style.display='none';
+      document.getElementById('pp').style.display='block';
+      document.getElementById('sb').disabled=true;
+      ptimer=setInterval(poll,1500);
+    }else if(s.done&&s.algo&&!s.error){
+      fin(s);document.getElementById('sp').style.display='none';
+    }
+  }catch(e){}
+});
+</script>
+</body>
+</html>

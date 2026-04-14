@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bankruptcy Shield | Hybrid Financial Risk Prediction</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --dark: #1a1a2e;
+            --bg: #f4f7fe;
+            --text: #64748b;
+            --white: #ffffff;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        
+        body { background-color: var(--bg); color: var(--dark); line-height: 1.6; }
+
+        /* Navigation Bar */
+        nav {
+            background: #fff;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--dark); text-decoration: none; }
+        .logo span { color: var(--primary); }
+
+        .nav-links { display: flex; gap: 1.5rem; align-items: center; list-style: none; }
+        .nav-links a { 
+            text-decoration: none; 
+            color: var(--text); 
+            font-weight: 500; 
+            transition: 0.3s;
+        }
+        .nav-links a:hover { color: var(--primary); }
+
+        .btn-logout { 
+            color: #ef4444 !important; 
+            border: 1px solid #ef4444; 
+            padding: 6px 15px; 
+            border-radius: 8px; 
+            transition: 0.3s;
+        }
+        .btn-logout:hover { background: #ef4444; color: #fff !important; }
+
+        /* Main Body Content */
+        .container { max-width: 1100px; margin: 3rem auto; padding: 0 20px; }
+        
+        .header-section { text-align: center; margin-bottom: 3rem; }
+        .header-section h1 { font-size: 2.5rem; margin-bottom: 10px; color: var(--dark); }
+        .header-section p { color: var(--text); font-size: 1.1rem; }
+
+        /* Module Cards Grid */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin-bottom: 4rem;
+        }
+
+        .card {
+            background: #fff;
+            padding: 40px 30px;
+            border-radius: 20px;
+            text-align: center;
+            transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid #eef0f7;
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+            border-color: var(--primary);
+        }
+
+        .card .icon { font-size: 3rem; margin-bottom: 20px; display: inline-block; }
+        .card h3 { font-size: 1.5rem; margin-bottom: 15px; color: var(--dark); }
+        .card p { color: var(--text); font-size: 0.95rem; margin-bottom: 20px; }
+
+        .btn-card {
+            background: #f0f3ff;
+            color: var(--primary);
+            padding: 10px 20px;
+            border-radius: 8px;
+            font-weight: 600;
+            display: inline-block;
+            transition: 0.3s;
+        }
+
+        .card:hover .btn-card { background: var(--primary); color: #fff; }
+
+        /* --- INFO SECTION --- */
+        .info-section {
+            background: var(--white);
+            padding: 50px;
+            border-radius: 25px;
+            border: 1px solid #eef0f7;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.02);
+        }
+
+        .info-header { margin-bottom: 30px; border-bottom: 2px solid var(--bg); padding-bottom: 20px; }
+        .info-header h2 { color: var(--dark); font-size: 1.8rem; margin-bottom: 10px; }
+        .info-header h2 span { color: var(--primary); }
+
+        .info-content p { color: var(--text); font-size: 1.1rem; margin-bottom: 30px; line-height: 1.8; }
+
+        .info-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+        }
+
+        .info-box {
+            background: var(--bg);
+            padding: 25px;
+            border-radius: 15px;
+            border-left: 5px solid var(--primary);
+        }
+
+        .info-box h4 { margin-bottom: 12px; color: var(--dark); font-size: 1.2rem; display: flex; align-items: center; gap: 10px; }
+        .info-box p { font-size: 0.95rem; color: var(--text); line-height: 1.6; }
+
+        footer { text-align: center; margin-top: 5rem; padding: 2rem; color: #94a3b8; font-size: 0.9rem; border-top: 1px solid #eef0f7; }
+
+        @media (max-width: 768px) {
+            .info-grid { grid-template-columns: 1fr; }
+            .info-section { padding: 30px 20px; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('index') }}" class="logo">🛡️ Bankruptcy <span>Shield</span></a>
+        <div class="nav-links">
+            <a href="{{ url_for('index') }}">Home</a>
+
+            {% if session.get('user_id') %}
+                <a href="/dashboard">Dashboard</a>
+                <a href="/train">Train Model</a>
+                <a href="/predict">Predict</a>
+                <a href="/compare">Compare</a>
+                <a href="/logout" class="btn-logout">Logout</a>
+            {% else %}
+                <a href="/compare">Compare</a>
+                <a href="/login">Login</a>
+                <a href="/register">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <div class="container">
+        <!-- Header -->
+        <div class="header-section">
+            <h1>Hybrid Financial Risk Intelligence</h1>
+            <p>Leveraging Advanced Machine Learning to Mitigate Corporate Financial Risks.</p>
+        </div>
+
+        <!-- Cards Grid -->
+        <div class="grid">
+            <a href="{{ url_for('train') }}" class="card">
+                <div class="icon">⚙️</div>
+                <h3>Train Model</h3>
+                <p>Upload historical financial datasets to calibrate the hybrid GA-PSO algorithms for maximum accuracy.</p>
+                <span class="btn-card">Open Trainer</span>
+            </a>
+
+            <a href="{{ url_for('predict') }}" class="card">
+                <div class="icon">🔍</div>
+                <h3>Predict Risk</h3>
+                <p>Execute real-time risk assessment using Stock Tickers, CSV bulk uploads, or Manual financial ratios.</p>
+                <span class="btn-card">Start Prediction</span>
+            </a>
+
+            <a href="{{ url_for('compare') }}" class="card">
+                <div class="icon">📊</div>
+                <h3>Analytics Hub</h3>
+                <p>Visualize performance metrics and compare risk trends across various financial sectors and periods.</p>
+                <span class="btn-card">View Reports</span>
+            </a>
+        </div>
+
+        <!-- ABOUT BANKRUPTCY SECTION (Fully in English) -->
+        <div class="info-section">
+            <div class="info-header">
+                <h2>Understanding <span>Corporate Bankruptcy</span></h2>
+            </div>
+            <div class="info-content">
+                <p>
+                    Bankruptcy is a critical financial state where a corporation is unable to honor its debt obligations. 
+                    When a company's liabilities exceed the fair market value of its assets, it often leads to insolvency, 
+                    causing massive losses for investors, lenders, and employees. Predicting this state is vital for 
+                    maintaining global financial stability.
+                </p>
+                
+                <div class="info-grid">
+                    <div class="info-box">
+                        <h4>⚠️ Why Prediction Matters?</h4>
+                        <p>Early detection of financial distress through ratios like ROA, Debt-to-Equity, and Working Capital allows stakeholders to take preventive measures, saving billions in potential liquidation losses.</p>
+                    </div>
+                    <div class="info-box">
+                        <h4>🚀 The Hybrid Shield Approach</h4>
+                        <p>Our <b>Hybrid ML Model</b> integrates Genetic Algorithms (GA) and Particle Swarm Optimization (PSO) to process vast historical data, identifying patterns of failure with superior precision compared to traditional methods.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 Bankruptcy Shield: Hybrid Financial Risk Prediction Using Machine Learning
+    </footer>
+
+</body>
+</html>

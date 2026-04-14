@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Predict – Bankruptcy Shield</title>
+<style>
+:root{--primary:#4361ee;--dark:#1a1a2e;--bg:#f4f7fe;--text:#64748b}
+*{margin:0;padding:0;box-sizing:border-box;font-family:'Inter','Segoe UI',sans-serif}
+body{background:var(--bg)}
+nav{background:#fff;padding:1rem 5%;display:flex;justify-content:space-between;align-items:center;box-shadow:0 2px 10px rgba(0,0,0,.05);position:sticky;top:0;z-index:999}
+.logo{font-size:1.4rem;font-weight:800;text-decoration:none;color:var(--dark)}.logo span{color:var(--primary)}
+.nav-links{display:flex;gap:1.5rem;list-style:none;align-items:center}
+.nav-links a{text-decoration:none;color:var(--text);font-weight:500;transition:.3s}.nav-links a:hover{color:var(--primary)}
+.btn-logout{color:#ef4444!important;border:1px solid #ef4444;padding:6px 14px;border-radius:8px}
+.container{max-width:900px;margin:40px auto;padding:0 20px}
+h1{font-size:1.8rem;font-weight:800;margin-bottom:6px}
+.subtitle{color:var(--text);margin-bottom:30px}
+.tabs{display:flex;gap:10px;margin-bottom:24px}
+.tab-btn{flex:1;padding:12px;border:2px solid #e2e8f0;background:#fff;border-radius:10px;font-weight:600;cursor:pointer;transition:.3s;font-size:.95rem}
+.tab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary)}
+.tab-content{display:none;background:#fff;padding:32px;border-radius:16px;box-shadow:0 4px 20px rgba(0,0,0,.06)}
+.tab-content.active{display:block}
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.form-group{display:flex;flex-direction:column;gap:6px}
+.form-group label{font-weight:600;font-size:.9rem;color:var(--dark)}
+.form-group .hint{font-size:.78rem;color:var(--text)}
+input[type=number],input[type=text]{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:9px;font-size:.95rem;transition:.3s}
+input:focus{outline:none;border-color:var(--primary)}
+.btn{background:var(--primary);color:#fff;border:none;padding:13px 28px;border-radius:10px;font-weight:700;cursor:pointer;font-size:1rem;width:100%;margin-top:18px;transition:.3s}
+.btn:hover{background:#3a0ca3}
+/* Result */
+.result-box{padding:28px;border-radius:16px;margin-bottom:24px;text-align:center;border:2px solid}
+.res-safe{background:#dcfce7;border-color:#10b981;color:#065f46}
+.res-risk{background:#fee2e2;border-color:#ef4444;color:#991b1b}
+.res-status{font-size:2rem;font-weight:800;margin:10px 0}
+.res-prob{font-size:1.1rem}
+/* Ticker badge */
+.ticker-badge{display:inline-flex;align-items:center;gap:8px;background:#1a1a2e;color:#fff;padding:6px 16px;border-radius:30px;font-weight:700;font-size:1rem;margin:10px 0}
+.ticker-badge .exch{font-size:.72rem;background:rgba(255,255,255,.15);padding:2px 8px;border-radius:12px;font-weight:500}
+/* Company info grid */
+.company-meta{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:10px}
+.meta-pill{background:rgba(0,0,0,.06);border-radius:20px;padding:4px 12px;font-size:.8rem}
+/* Financial data */
+.fin-section{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.fin-section h4{font-size:.95rem;margin-bottom:12px;color:var(--dark)}
+.fin-data-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:.85rem}
+.fin-item{background:#f8fafc;border-radius:8px;padding:8px 12px;display:flex;justify-content:space-between}
+.fn{color:var(--text)}.fv{font-weight:600}
+/* CSV */
+.csv-summary{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin:18px 0}
+.sum-card{background:#f8fafc;border-radius:12px;padding:18px;text-align:center}
+.sum-card .val{font-size:1.8rem;font-weight:800;color:var(--primary)}
+.sum-card .lbl{font-size:.85rem;color:var(--text);margin-top:4px}
+.sum-card.red .val{color:#ef4444}.sum-card.green .val{color:#10b981}
+table{width:100%;border-collapse:collapse;margin-top:16px;font-size:.9rem}
+th{background:#f8fafc;padding:10px 14px;text-align:left;color:var(--text);font-weight:600}
+td{padding:10px 14px;border-bottom:1px solid #f1f5f9}
+.badge-safe{background:#dcfce7;color:#065f46;padding:3px 10px;border-radius:20px;font-weight:600;font-size:.82rem}
+.badge-risk{background:#fee2e2;color:#991b1b;padding:3px 10px;border-radius:20px;font-weight:600;font-size:.82rem}
+.alert{padding:12px 18px;border-radius:10px;margin-bottom:20px;font-weight:500}
+.alert-danger{background:#fee2e2;color:#991b1b}
+.alert-warning{background:#fff3cd;color:#856404}
+.alert-success{background:#d1e7dd;color:#0f5132}
+.upload-area{border:2px dashed #e2e8f0;border-radius:12px;padding:30px;text-align:center;cursor:pointer;transition:.3s}
+.upload-area:hover{border-color:var(--primary);background:#f0f3ff}
+.upload-area p{color:var(--text);margin-top:8px}
+.threshold-note{background:#fff3cd;border:1px solid #ffc107;border-radius:8px;padding:10px 14px;font-size:.85rem;color:#856404;margin-bottom:18px}
+/* Search sources badge */
+.sources-list{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+.src-badge{font-size:.75rem;padding:3px 10px;border-radius:12px;font-weight:500}
+.src-yahoo{background:#e8f0fe;color:#1a73e8}
+.src-nse{background:#fce8e6;color:#d93025}
+.src-bse{background:#e6f4ea;color:#188038}
+/* Loading spinner */
+.spinner{display:none;text-align:center;padding:20px}
+.spinner.active{display:block}
+</style>
+</head>
+<body>
+<nav>
+  <a class="logo" href="/">Bankruptcy<span>Shield</span></a>
+  <ul class="nav-links">
+    <li><a href="/">Home</a></li>
+    <li><a href="/dashboard">Dashboard</a></li>
+    <li><a href="/train">Train Model</a></li>
+    <li><a href="/predict">Predict</a></li>
+    <li><a href="/compare">Compare</a></li>
+    <li><a class="btn-logout" href="/logout">Logout</a></li>
+  </ul>
+</nav>
+
+<div class="container">
+  {% with messages = get_flashed_messages(with_categories=true) %}
+    {% for cat, msg in messages %}
+      <div class="alert alert-{{cat}}">{{msg}}</div>
+    {% endfor %}
+  {% endwith %}
+
+  <h1>🔮 Bankruptcy Prediction</h1>
+  <p class="subtitle">Choose a prediction method below. Enter basic financial data – the system calculates all ratios automatically.</p>
+
+  <!-- ── RESULT DISPLAY ── -->
+  {% if result %}
+    {% if result.mode in ['Manual Input', 'Company Lookup'] %}
+      <div class="result-box {{ 'res-risk' if result.status == 'Bankrupt' else 'res-safe' }}">
+        <div>{{ '⚠️ HIGH BANKRUPTCY RISK' if result.status == 'Bankrupt' else '✅ FINANCIALLY HEALTHY' }}</div>
+        <div class="res-status">{{ result.status }}</div>
+        <div class="res-prob">Bankruptcy Probability: <strong>{{ result.probability }}%</strong></div>
+
+        {% if result.get('symbol') %}
+          <!-- Ticker badge with exchange label -->
+          <div style="margin-top:12px">
+            <div class="ticker-badge">
+              📈 {{ result.symbol }}
+              <span class="exch">{{ result.exchange }}</span>
+            </div>
+          </div>
+          <div style="margin-top:4px;font-size:.9rem;opacity:.85">
+            {{ result.company }}
+          </div>
+          <!-- Company meta pills -->
+          <div class="company-meta">
+            {% if result.get('sector') and result.sector != 'N/A' %}
+              <span class="meta-pill">🏭 {{ result.sector }}</span>
+            {% endif %}
+            {% if result.get('industry') and result.industry != 'N/A' %}
+              <span class="meta-pill">⚙️ {{ result.industry }}</span>
+            {% endif %}
+            {% if result.get('country') and result.country != 'N/A' %}
+              <span class="meta-pill">🌍 {{ result.country }}</span>
+            {% endif %}
+            {% if result.get('currency') %}
+              <span class="meta-pill">💱 {{ result.currency }}</span>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <div style="margin-top:10px;font-size:.82rem;opacity:.75">
+          Threshold: {{ result.threshold }}%  |  Mode: {{ result.mode }}
+        </div>
+      </div>
+
+      {% if result.get('financial_data') %}
+      <div class="fin-section">
+        <h4>📋 Financial Data Used for Prediction</h4>
+        <div class="fin-data-grid">
+          {% for k, v in result.financial_data.items() %}
+          <div class="fin-item">
+            <span class="fn">{{ k }}</span>
+            <span class="fv">
+              {% if result.get('currency') %}{{ result.currency }} {% endif %}
+              {{ "{:,.0f}".format(v) if v else '0' }}
+            </span>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+      {% endif %}
+
+    {% elif result.mode == 'CSV Upload' %}
+      <div style="background:#fff;border-radius:16px;padding:24px;margin-bottom:20px;box-shadow:0 4px 20px rgba(0,0,0,.06)">
+        <h3 style="margin-bottom:14px">📋 CSV Analysis Results</h3>
+        <div class="csv-summary">
+          <div class="sum-card"><div class="val">{{ result.total }}</div><div class="lbl">Total Companies</div></div>
+          <div class="sum-card red"><div class="val">{{ result.bankrupt }}</div><div class="lbl">⚠️ Bankrupt</div></div>
+          <div class="sum-card green"><div class="val">{{ result.non_bankrupt }}</div><div class="lbl">✅ Non-Bankrupt</div></div>
+        </div>
+        <h4 style="margin:16px 0 8px;font-size:.95rem">Preview (first 10 rows):</h4>
+        <table>
+          <tr><th>#</th><th>Prediction</th><th>Bankruptcy Probability</th></tr>
+          {% for i, row in enumerate(result.preview) %}
+          <tr>
+            <td>{{ i+1 }}</td>
+            <td><span class="{{ 'badge-risk' if row.Prediction == 'Bankrupt' else 'badge-safe' }}">{{ row.Prediction }}</span></td>
+            <td>{{ row['Bankruptcy_Probability_%'] }}%</td>
+          </tr>
+          {% endfor %}
+        </table>
+        {% if result.download %}
+        <a href="/download_results" style="display:inline-block;margin-top:14px;background:var(--primary);color:#fff;padding:10px 22px;border-radius:9px;text-decoration:none;font-weight:600">⬇ Download Full Results CSV</a>
+        {% endif %}
+      </div>
+    {% endif %}
+  {% endif %}
+
+  <!-- ── TABS ── -->
+  <div class="tabs">
+    <button class="tab-btn active" onclick="showTab('manual',this)">✏️ Manual Input</button>
+    <button class="tab-btn" onclick="showTab('csv',this)">📄 CSV Upload</button>
+    <button class="tab-btn" onclick="showTab('company',this)">🏢 Company Lookup</button>
+  </div>
+
+  <!-- MANUAL INPUT -->
+  <div id="tab-manual" class="tab-content active">
+    <div class="threshold-note">ℹ️ Threshold set to <strong>30%</strong> for higher sensitivity. Enter all amounts in the same currency unit (thousands or millions).</div>
+    <form method="POST">
+      <input type="hidden" name="mode" value="manual">
+      <div class="form-grid">
+        <div class="form-group"><label>Revenue / Total Sales</label><span class="hint">Total revenue for the period</span><input type="number" name="revenue" step="any" placeholder="e.g. 5000000" required></div>
+        <div class="form-group"><label>Total Assets</label><span class="hint">Sum of all assets owned</span><input type="number" name="total_assets" step="any" placeholder="e.g. 3000000" required></div>
+        <div class="form-group"><label>Total Liabilities</label><span class="hint">All debts and obligations</span><input type="number" name="total_liabilities" step="any" placeholder="e.g. 1200000" required></div>
+        <div class="form-group"><label>Operating Income / EBIT</label><span class="hint">Profit from core operations</span><input type="number" name="operating_income" step="any" placeholder="e.g. 800000" required></div>
+        <div class="form-group"><label>Net Income</label><span class="hint">Bottom-line profit after all expenses</span><input type="number" name="net_income" step="any" placeholder="e.g. 600000" required></div>
+        <div class="form-group"><label>Operating Cash Flow</label><span class="hint">Cash generated from operations</span><input type="number" name="op_cash_flow" step="any" placeholder="e.g. 700000" required></div>
+        <div class="form-group"><label>Current Assets</label><span class="hint">Assets convertible to cash within 1 year</span><input type="number" name="current_assets" step="any" placeholder="e.g. 1200000" required></div>
+        <div class="form-group"><label>Current Liabilities</label><span class="hint">Debts due within 1 year</span><input type="number" name="current_liabilities" step="any" placeholder="e.g. 400000" required></div>
+      </div>
+      <button type="submit" class="btn">🔮 Predict Bankruptcy Risk</button>
+    </form>
+  </div>
+
+  <!-- CSV UPLOAD -->
+  <div id="tab-csv" class="tab-content">
+    <div class="threshold-note">ℹ️ CSV can contain either: <strong>(a)</strong> The 8 basic financial columns OR <strong>(b)</strong> The full 95 dataset feature columns. Missing columns are auto-filled with training means.</div>
+    <form method="POST" enctype="multipart/form-data">
+      <input type="hidden" name="mode" value="csv">
+      <div class="upload-area" onclick="document.getElementById('csv_file').click()">
+        <div style="font-size:2.5rem">📁</div>
+        <p><strong>Click to upload CSV</strong> or drag and drop</p>
+        <p style="font-size:.8rem">.csv files only</p>
+      </div>
+      <input type="file" id="csv_file" name="csv_file" accept=".csv" style="display:none" onchange="document.getElementById('fname').textContent=this.files[0]?.name||''">
+      <p id="fname" style="margin-top:8px;color:var(--primary);font-weight:600;text-align:center"></p>
+      <button type="submit" class="btn">📊 Process CSV & Predict</button>
+    </form>
+    <div style="margin-top:20px;background:#f8fafc;border-radius:10px;padding:16px;font-size:.85rem">
+      <strong>📋 Expected CSV format (Basic Financial Data):</strong><br>
+      <code style="display:block;margin-top:8px;background:#e2e8f0;padding:8px;border-radius:6px">revenue,total_assets,total_liabilities,operating_income,net_income,op_cash_flow,current_assets,current_liabilities<br>5000000,3000000,1200000,800000,600000,700000,1200000,400000</code>
+    </div>
+  </div>
+
+  <!-- COMPANY LOOKUP -->
+  <div id="tab-company" class="tab-content">
+    <div class="threshold-note">
+      ℹ️ Enter the company name as listed on stock exchanges. The system will automatically find its ticker across multiple sources.
+    </div>
+
+    <!-- Search source badges -->
+    <div style="margin-bottom:18px">
+      <span style="font-size:.82rem;color:var(--text);font-weight:600">Searches across:</span>
+      <div class="sources-list">
+        <span class="src-badge src-yahoo">🌐 Yahoo Finance (Global)</span>
+        <span class="src-badge src-nse">🇮🇳 NSE India</span>
+        <span class="src-badge src-bse">🇮🇳 BSE India</span>
+      </div>
+    </div>
+
+    <form method="POST" onsubmit="showLoading()">
+      <input type="hidden" name="mode" value="company">
+      <div class="form-group" style="margin-bottom:16px">
+        <label>Company Name</label>
+        <span class="hint">Full name as listed — e.g. "Infosys Limited", "Reliance Industries", "Apple Inc"</span>
+        <input type="text" name="company_name" id="company_name_input"
+               placeholder="e.g. Tata Motors, Tesla, Apple Inc, Reliance Industries"
+               required autocomplete="off">
+      </div>
+      <button type="submit" class="btn" id="search-btn">🔍 Search & Predict</button>
+    </form>
+
+    <!-- Loading indicator -->
+    <div class="spinner" id="loading-spinner">
+      <div style="font-size:1.1rem;color:var(--text)">
+        🔎 Searching Yahoo Finance, NSE & BSE India for ticker…<br>
+        <span style="font-size:.85rem">This may take a few seconds</span>
+      </div>
+    </div>
+
+    <div style="margin-top:16px;background:#f8fafc;border-radius:10px;padding:14px;font-size:.83rem;color:var(--text)">
+      <strong>✅ Supported examples:</strong><br>
+      <span style="font-family:monospace">Apple Inc &nbsp;·&nbsp; Tesla &nbsp;·&nbsp; Amazon &nbsp;·&nbsp; Infosys &nbsp;·&nbsp; Reliance Industries &nbsp;·&nbsp; Tata Motors &nbsp;·&nbsp; HDFC Bank &nbsp;·&nbsp; Wipro</span>
+    </div>
+  </div>
+</div>
+
+<script>
+function showTab(name, btn) {
+  document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('tab-' + name).classList.add('active');
+  btn.classList.add('active');
+}
+function showLoading() {
+  const btn = document.getElementById('search-btn');
+  const spinner = document.getElementById('loading-spinner');
+  btn.textContent = '⏳ Searching...';
+  btn.disabled = true;
+  spinner.classList.add('active');
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Bankruptcy Shield</title>
+    <style>
+        :root {
+            --primary: #4361ee;
+            --dark: #1a1a2e;
+            --bg: #f4f7fe;
+            --text: #64748b;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', 'Segoe UI', sans-serif; }
+        
+        body { 
+            background-color: var(--bg); 
+            height: 100vh; 
+            display: flex; 
+            flex-direction: column;
+        }
+
+        /* Simple Nav for Login/Register */
+        nav {
+            background: #fff;
+            padding: 1rem 5%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+        }
+
+        .logo { font-size: 1.5rem; font-weight: 800; color: var(--dark); text-decoration: none; }
+        .logo span { color: var(--primary); }
+
+        .login-container {
+            flex: 1;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .card { 
+            background: #fff; 
+            padding: 40px; 
+            border-radius: 20px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.05); 
+            width: 100%;
+            max-width: 400px; 
+            border: 1px solid #eef0f7;
+        }
+
+        h2 { text-align: center; color: var(--dark); margin-bottom: 10px; font-size: 1.8rem; }
+        p.subtitle { text-align: center; color: var(--text); margin-bottom: 30px; font-size: 0.9rem; }
+
+        .form-group { margin-bottom: 20px; }
+        label { display: block; margin-bottom: 8px; font-weight: 600; color: var(--dark); font-size: 0.9rem; }
+
+        input { 
+            width: 100%; 
+            padding: 12px 15px; 
+            border: 1px solid #e2e8f0; 
+            border-radius: 10px; 
+            outline: none; 
+            transition: 0.3s;
+            background: #fcfdfe;
+        }
+
+        input:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
+
+        .btn { 
+            width: 100%; 
+            padding: 14px; 
+            background: var(--primary); 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+            cursor: pointer; 
+            font-weight: 700; 
+            font-size: 1rem;
+            transition: 0.3s;
+            margin-top: 10px;
+        }
+
+        .btn:hover { background: #3751d7; transform: translateY(-2px); box-shadow: 0 5px 15px rgba(67, 97, 238, 0.3); }
+
+        .footer-links { text-align: center; margin-top: 25px; font-size: 0.9rem; color: var(--text); }
+        .footer-links a { color: var(--primary); text-decoration: none; font-weight: 600; }
+        .footer-links a:hover { text-decoration: underline; }
+
+        /* Flash Messages Style */
+        .alert {
+            padding: 12px;
+            background-color: #fee2e2;
+            color: #ef4444;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 0.85rem;
+            text-align: center;
+            border: 1px solid #fecaca;
+        }
+    </style>
+</head>
+<body>
+
+    <nav>
+        <a href="{{ url_for('index') }}" class="logo">🛡️ Bankruptcy <span>Shield</span></a>
+    </nav>
+
+    <div class="login-container">
+        <div class="card">
+            <h2>Welcome Back</h2>
+            <p class="subtitle">Enter your credentials to access your dashboard</p>
+
+            <!-- Flask Flash Messages -->
+            {% with messages = get_flashed_messages() %}
+              {% if messages %}
+                {% for message in messages %}
+                  <div class="alert">{{ message }}</div>
+                {% endfor %}
+              {% endif %}
+            {% endwith %}
+
+            <form action="{{ url_for('login') }}" method="POST">
+                <div class="form-group">
+                    <label>Email Address</label>
+                    <input type="email" name="email" placeholder="name@company.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="••••••••" required>
+                </div>
+                <button type="submit" class="btn">Sign In</button>
+            </form>
+
+            <div class="footer-links">
+                <p>Don't have an account? <a href="{{ url_for('register') }}">Register here</a></p>
+                <p style="margin-top: 10px;"><a href="/reset_password" style="font-weight: normal; color: var(--text); font-size: 0.8rem;">Forgot Password?</a></p>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>

@@ -1,0 +1,19 @@
+{
+    "winner": "Random Forest",
+    "lr_score": 0.8266723070431511,
+    "rf_score": 0.9347422164957332,
+    "features": [
+        "ROA(A) before interest and % after tax",
+        "ROA(B) before interest and depreciation after tax",
+        "Operating Gross Margin",
+        "Realized Sales Gross Margin",
+        "Operating Profit Rate",
+        "Pre-tax net Interest Rate",
+        "Revenue Per Share (Yuan \u00a5)",
+        "Operating Profit Per Share (Yuan \u00a5)",
+        "Per Share Net profit before tax (Yuan \u00a5)",
+        "Realized Sales Gross Profit Growth Rate",
+        "Operating Profit Growth Rate",
+        "Continuous Net Profit Growth Rate"
+    ]
+}
